@@ -17,3 +17,4 @@ ultraviolet = { version = "0.8", features = [ "f64", "int" ] }
 der-parser = { version = "6.0", features = ["bigint"] }
 x509-signature = "0.5"
 rusticata-macros = "*"
+byteorder = "*"

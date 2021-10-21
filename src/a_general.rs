@@ -1,11 +1,16 @@
 
 pub mod my_pretty_der;
 
+use std::io::Cursor;
 use rusticata_macros::debug;
-use der_parser::der::DerObject;
 use core::mem::swap;
 use num_bigint::BigInt;
 use std::io::BufReader;
+use byteorder::{BigEndian, ReadBytesExt};
+use num_bigint::Sign;
+use serde::{Deserialize, Serialize};
+
+
 
 pub fn a_ascii() {
     let s: &[u8] = &[
@@ -38,8 +43,7 @@ pub fn d_bytes_big_integers() {
     println!("{}", String::from_utf8_lossy(&my_bytes));
 }
 
-use serde::{Deserialize, Serialize};
-use serde_json::Result;
+
 
 #[derive(Serialize, Deserialize)]
 struct EncodedAndType {
@@ -394,7 +398,7 @@ pub fn p_data_formats_certainly_not() {
     
 
     //println!("{:?}", my_pretty_der::as_pretty(&der_elem, 0, 2));
-    use num_bigint::Sign;
+    
     let der_elem = der_elem.as_bitstring().unwrap();
     let end = der_elem.data.len();
 
@@ -406,6 +410,40 @@ pub fn p_data_formats_certainly_not() {
     // Nie udalo sie przeczytac certu poprzez x509_signature
     // let cert = x509_signature::parse_certificate(&der_bytes).unwrap();
     // println!("{:?}", cert);
+}
+
+
+
+
+pub fn r_ssh_keys() {
+    use std::io::BufRead;
+    use std::io::Read;
+
+    let ssh_rsa = include_str!("assets/bruce_rsa.pub");
+    let ssh_rsa = ssh_rsa.split(" ").nth(1).unwrap();
+    let base64decoded = base64::decode(ssh_rsa).unwrap();
+
+
+    let mut rdr = Cursor::new(base64decoded);
+    let _prefix = rdr.read_u32::<BigEndian>().unwrap();
+    rdr.consume(7); // "ssh-rsa"
+
+    let exponent = {
+        let length = rdr.read_u32::<BigEndian>().unwrap();
+        let mut v = vec![0; length as usize];
+        rdr.read(&mut v).unwrap();
+        v
+    };
+    let modulus = {
+        let length = rdr.read_u32::<BigEndian>().unwrap();
+        let mut v = vec![0; length as usize];
+        rdr.read(&mut v).unwrap();
+        v
+    };
+
+    println!("    exponent: {:?}", BigInt::from_bytes_be(Sign::Plus, &exponent));
+    println!("flag modulus: {:?}", BigInt::from_bytes_be(Sign::Plus, &modulus));
+    
 }
 
 

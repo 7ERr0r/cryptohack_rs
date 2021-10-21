@@ -4,7 +4,7 @@ pub mod b_mathematics;
 macro_rules! run_function {
     // Makro wypisuje nazwe funkcji i ja uruchamia
     ($func_name:expr) => {
-        println!("\n{}", stringify!($func_name));
+        println!("\n# Challenge {}", stringify!($func_name));
         $func_name();
     };
 }
@@ -36,6 +36,7 @@ fn main() {
         // DATA FORMATS
         run_function!(a_general::o_data_formats_pem_privacy_enchanced_mail);
         run_function!(a_general::p_data_formats_certainly_not);
+        run_function!(a_general::r_ssh_keys);
     }
 
     // MATHEMATICS
