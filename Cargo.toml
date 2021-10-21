@@ -13,3 +13,7 @@ num-integer = "*"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 ultraviolet = { version = "0.8", features = [ "f64", "int" ] }
+#asn1 = "*"
+der-parser = { version = "6.0", features = ["bigint"] }
+x509-signature = "0.5"
+rusticata-macros = "*"

@@ -1,3 +1,9 @@
+
+pub mod my_pretty_der;
+
+use rusticata_macros::debug;
+use der_parser::der::DerObject;
+use core::mem::swap;
 use num_bigint::BigInt;
 use std::io::BufReader;
 
@@ -155,7 +161,7 @@ pub fn g_xor_properties() {
     println!("flag: {}", String::from_utf8_lossy(&FLAG));
 }
 
-pub fn h_favourite_byte() {
+pub fn h_xor_favourite_byte() {
     let ciphertext =
         hex::decode("73626960647f6b206821204f21254f7d694f7624662065622127234f726927756d").unwrap();
 
@@ -170,7 +176,7 @@ pub fn h_favourite_byte() {
     }
 }
 
-pub fn i_either() {
+pub fn i_xor_either() {
     let ciphertext = hex::decode(
         "0e0b213f26041e480b26217f27342e175d0e070a3c5b103e2526217f27342e175d0e077e263451150104",
     )
@@ -197,3 +203,211 @@ pub fn i_either() {
 pub fn xor_arr(a: &[u8], b: &[u8]) -> Vec<u8> {
     a.iter().zip(b.iter()).map(|(&x1, &x2)| x1 ^ x2).collect()
 }
+
+pub fn j_math_gcd() {
+    //let result = my_gcd(15, 26);
+    let result = my_gcd(66528, 52920);
+
+    println!("gcd: {}", result);
+}
+
+pub fn my_gcd(mut a: i64, mut b: i64) -> i64 {
+    if b > a {
+        swap(&mut a, &mut b);
+    }
+    assert!(a > b);
+    // a is bigger
+
+    while b > 0 {
+        let q = a / b;
+        let r = a % b;
+        println!("{:5} = {}({:5}) + {:5}", a, q, b, r);
+        a = b;
+        b = r;
+    }
+
+    a
+}
+
+pub fn k_math_gcd_ext() {
+    let x = 26513;
+    let n = 32321;
+    let result = my_gcd_ext(x, n);
+
+    println!("gcd: {}", result.gcd);
+    println!("p: {}", result.p);
+    println!("s: {}", result.s);
+    let check = result.p * x + result.s * n;
+    println!("check: {}*{} + {}*{} = {}", result.p, x, result.s, n, check);
+}
+
+pub struct GcdExtended {
+    gcd: i64,
+    p: i64,
+    s: i64,
+}
+
+pub fn my_gcd_ext(x: i64, n: i64) -> GcdExtended {
+    let mut a = x;
+    let mut b = n;
+
+    let (mut p2, mut p1, mut q2, mut q1) = (0, 0, 0, 0);
+    let mut step = 0;
+    while b > 0 {
+        let q = a / b;
+        let r = a % b;
+
+        let pi = if step >= 2 {
+            (p2 - p1 * q2 as i64).rem_euclid(n)
+        } else {
+            step
+        };
+
+        if step >= 2 {
+            println!(
+                "{:5} = {}({:5}) + {:5}      p = {:5} - {:5}({:5}) mod {:5} = {:5}",
+                a, q, b, r, p2, p1, q2, n, pi
+            );
+        } else {
+            println!("{:5} = {}({:5}) + {:5}      p = {:5}", a, q, b, r, pi);
+        }
+        a = b;
+        b = r;
+
+        q2 = q1;
+        q1 = q;
+
+        p2 = p1;
+        p1 = pi;
+
+        step += 1;
+    }
+
+    let pk2 = (p2 - p1 * q2 as i64).rem_euclid(n);
+    println!(
+        "                              p = {:5} - {:5}({:5}) mod {:5} = {:5}",
+        p2, p1, q2, n, pk2
+    );
+    let s = (1 - pk2 * x) / n;
+
+    GcdExtended {
+        gcd: a,
+        p: pk2,
+        s: s,
+    }
+}
+
+pub fn l_math_modular_arithmetic_1() {
+    let x = 11 as u64 % 6;
+    let y = 8146798528947 as u64 % 17;
+
+    println!("{}", x.min(y));
+}
+
+macro_rules! big {
+    ($mynum:expr) => {
+        BigInt::parse_bytes(stringify!($mynum).as_bytes(), 10).unwrap();
+    };
+}
+
+pub fn m_math_modular_arithmetic_2() {
+    let p = big!(65537);
+    let p_minus_1 = &p - 1;
+    let x = big!(27324678765465536);
+
+    let result = x.modpow(&p_minus_1, &p);
+    println!("{}^{} mod {} = {}", x, p_minus_1, p, result);
+}
+
+pub fn n_math_modular_inverting() {
+    let a = big!(3);
+    let b = big!(13);
+
+    let d = a.modpow(&(&b - 2), &b);
+    println!("{}^{} mod {} = {}", a, &b - 2, b, d);
+}
+
+pub fn o_data_formats_pem_privacy_enchanced_mail() {
+    let pem_bytes = include_bytes!("assets/privacy_enhanced_mail.pem");
+
+    let der_bytes = my_pem_decode(pem_bytes);
+    //println!("{}", String::from_utf8_lossy(&der_bytes));
+
+    let (rem, der_obj) = der_parser::parse_der(&der_bytes).expect("could not parse DER data");
+    // RSAPrivateKey ::= SEQUENCE {
+    //  0  version           Version,
+    //  1  modulus           INTEGER,  -- n
+    //  2  publicExponent    INTEGER,  -- e
+    //  3  privateExponent   INTEGER,  -- d
+    //  4  prime1            INTEGER,  -- p
+    //  5  prime2            INTEGER,  -- q
+    //  6  exponent1         INTEGER,  -- d mod (p-1)
+    //  7  exponent2         INTEGER,  -- d mod (q-1)
+    //  8  coefficient       INTEGER,  -- (inverse of q) mod p
+    //  9  otherPrimeInfos   OtherPrimeInfos OPTIONAL
+    //   }
+    //println!("{:?}", der_obj.as_pretty(0, 2));
+
+    if !rem.is_empty() {
+        println!("WARNING: extra bytes after BER/DER object:\n{:x?}", rem);
+    }
+
+    let der_sequence = der_obj.as_sequence().unwrap();
+    let private_exponent = &der_sequence[3]; //  3  privateExponent   INTEGER,  -- d
+    let private_exponent = private_exponent.as_biguint().unwrap();
+    println!("Extract the private key d: {}", private_exponent);
+}
+
+pub fn my_pem_decode(pem_string: &[u8]) -> Vec<u8> {
+    use std::io::BufRead;
+    let lines = pem_string.lines();
+
+    let mut base64encoded = String::new();
+    for line in lines {
+        let line = line.unwrap();
+        if !line.starts_with("-----") {
+            base64encoded.push_str(&line);
+        }
+    }
+
+    let base64decoded = base64::decode(base64encoded).unwrap();
+    base64decoded
+}
+
+
+
+pub fn p_data_formats_certainly_not() {
+    
+    let der_bytes = include_bytes!("assets/2048b-rsa-example-cert.der");
+    let der_bytes = &der_bytes[..];
+    let (rem, der_obj) = der_parser::parse_der(&der_bytes).expect("could not parse DER data");
+    println!("{:?}", my_pretty_der::as_pretty(&der_obj, 0, 2));
+    if !rem.is_empty() {
+        println!("WARNING: extra bytes after BER/DER object:\n{:x?}", rem);
+    }
+
+    let der_elem = der_obj.as_sequence().unwrap();
+    let der_elem = &der_elem[0].as_sequence().unwrap();
+    let der_elem = &der_elem.last().unwrap().as_sequence().unwrap();
+    
+    let der_elem = &der_elem.last().unwrap();
+    
+
+    //println!("{:?}", my_pretty_der::as_pretty(&der_elem, 0, 2));
+    use num_bigint::Sign;
+    let der_elem = der_elem.as_bitstring().unwrap();
+    let end = der_elem.data.len();
+
+    // nie wiem dlaczego od 8 bajtu i obcinamy 5 ostatnich...
+    let modulus_bytes = &der_elem.data[8..end-5];
+    println!("     modulus: {:?}", debug::HexSlice(modulus_bytes));
+    println!("flag modulus: {:?}", BigInt::from_bytes_be(Sign::Plus, modulus_bytes));
+
+    // Nie udalo sie przeczytac certu poprzez x509_signature
+    // let cert = x509_signature::parse_certificate(&der_bytes).unwrap();
+    // println!("{:?}", cert);
+}
+
+
+
+

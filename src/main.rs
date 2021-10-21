@@ -17,14 +17,25 @@ fn main() {
         run_function!(a_general::b_hex);
         run_function!(a_general::c_base64);
         run_function!(a_general::d_bytes_big_integers);
-        run_function!(a_general::e_tcp);
+        //run_function!(a_general::e_tcp);
+
+        // XOR
         run_function!(a_general::f_xor_starter);
         run_function!(a_general::g_xor_properties);
-        run_function!(a_general::h_favourite_byte);
-        run_function!(a_general::i_either);
-        
+        run_function!(a_general::h_xor_favourite_byte);
+        run_function!(a_general::i_xor_either);
 
-        
+        // MATHEMATICS
+        run_function!(a_general::j_math_gcd);
+        run_function!(a_general::k_math_gcd_ext);
+        run_function!(a_general::l_math_modular_arithmetic_1);
+        run_function!(a_general::m_math_modular_arithmetic_2);
+        run_function!(a_general::n_math_modular_inverting);
+
+
+        // DATA FORMATS
+        run_function!(a_general::o_data_formats_pem_privacy_enchanced_mail);
+        run_function!(a_general::p_data_formats_certainly_not);
     }
 
     // MATHEMATICS
