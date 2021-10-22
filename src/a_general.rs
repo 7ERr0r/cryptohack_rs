@@ -9,7 +9,7 @@ use std::io::BufReader;
 use byteorder::{BigEndian, ReadBytesExt};
 use num_bigint::Sign;
 use serde::{Deserialize, Serialize};
-
+use crate::big;
 
 
 pub fn a_ascii() {
@@ -34,11 +34,7 @@ pub fn c_base64() {
 }
 
 pub fn d_bytes_big_integers() {
-    let x = BigInt::parse_bytes(
-        b"11515195063862318899931685488813747395775516287289682636499965282714637259206269",
-        10,
-    )
-    .unwrap();
+    let x = big!(11515195063862318899931685488813747395775516287289682636499965282714637259206269);
     let my_bytes = x.to_bytes_be().1;
     println!("{}", String::from_utf8_lossy(&my_bytes));
 }
@@ -308,11 +304,7 @@ pub fn l_math_modular_arithmetic_1() {
     println!("{}", x.min(y));
 }
 
-macro_rules! big {
-    ($mynum:expr) => {
-        BigInt::parse_bytes(stringify!($mynum).as_bytes(), 10).unwrap();
-    };
-}
+
 
 pub fn m_math_modular_arithmetic_2() {
     let p = big!(65537);

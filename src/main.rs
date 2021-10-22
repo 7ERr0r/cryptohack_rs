@@ -1,6 +1,7 @@
 pub mod a_general;
 pub mod b_mathematics;
 
+
 macro_rules! run_function {
     // Makro wypisuje nazwe funkcji i ja uruchamia
     ($func_name:expr) => {
@@ -9,9 +10,10 @@ macro_rules! run_function {
     };
 }
 
+
 fn main() {
     // GENERAL
-    if true {
+    if false {
         // ENCODING
         run_function!(a_general::a_ascii);
         run_function!(a_general::b_hex);
@@ -40,16 +42,28 @@ fn main() {
     }
 
     // MATHEMATICS
-    if false {
+    if true {
         // MODULAR MATH
         run_function!(b_mathematics::a_modular_math_quadratic_residues);
         run_function!(b_mathematics::b_modular_math_legendre_symbol);
-        //run_function!(b_mathematics::c_modular_math_modular_square_root);
+        run_function!(b_mathematics::c_modular_math_modular_square_root);
         //run_function!(b_mathematics::d_modular_math_chinese_remainder_theorem);
 
         // LATTICES
-        run_function!(b_mathematics::e_lattices_vectors);
-        run_function!(b_mathematics::f_lattices_size_basis);
-        run_function!(b_mathematics::g_lattices_gram_schmidt);
+        // run_function!(b_mathematics::e_lattices_vectors);
+        // run_function!(b_mathematics::f_lattices_size_basis);
+        // run_function!(b_mathematics::g_lattices_gram_schmidt);
     }
+}
+
+
+
+
+
+// Makro do tworzenia duzych liczb
+#[macro_export]
+macro_rules! big {
+    ($mynum:tt) => {
+        BigInt::parse_bytes(stringify!($mynum).as_bytes(), 10).unwrap();
+    };
 }

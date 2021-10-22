@@ -18,3 +18,5 @@ der-parser = { version = "6.0", features = ["bigint"] }
 x509-signature = "0.5"
 rusticata-macros = "*"
 byteorder = "*"
+num-traits = "*"
+lazy_static = "1.4"
