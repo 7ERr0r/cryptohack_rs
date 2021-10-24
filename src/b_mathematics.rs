@@ -75,6 +75,46 @@ pub fn c_modular_math_modular_square_root() {
     println!("root flag: {}", root);
 }
 
+pub fn d_modular_math_chinese_remainder_theorem() {
+    let residues = vec![big!(2), big!(3), big!(5)];
+    let modulii = vec![big!(5), big!(11), big!(17)];
+
+    let result = my_chinese_remainder(&residues, &modulii);
+
+    println!("result: {:?}", result);
+}
+
+
+fn my_chinese_remainder(residues: &[BigInt], modulii: &[BigInt]) -> Option<BigInt> {
+    use num_traits::{Zero, One};
+    use num_traits::ToPrimitive;
+    let product = {
+        
+        let mut prod = BigInt::one();
+        for modulus in modulii {
+            prod *= modulus;
+        }
+        prod
+    };
+ 
+    let mut sum = BigInt::zero();
+ 
+    for (residue, modulus) in residues.iter().zip(modulii) {
+        let p = &product / modulus;
+        sum += residue * my_mod_inv(p.to_i64().unwrap(), modulus.to_i64().unwrap())? * p
+    }
+ 
+    Some(sum % product)
+}
+fn my_mod_inv(x: i64, n: i64) -> Option<i64> {
+    let gcde = crate::a_general::my_gcd_ext(x, n);
+    let x = gcde.p;
+    if gcde.gcd == 1 {
+        Some((x % n + n) % n)
+    } else {
+        None
+    }
+}
 
 
 pub fn e_lattices_vectors() {

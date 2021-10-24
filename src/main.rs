@@ -47,7 +47,7 @@ fn main() {
         run_function!(b_mathematics::a_modular_math_quadratic_residues);
         run_function!(b_mathematics::b_modular_math_legendre_symbol);
         run_function!(b_mathematics::c_modular_math_modular_square_root);
-        //run_function!(b_mathematics::d_modular_math_chinese_remainder_theorem);
+        run_function!(b_mathematics::d_modular_math_chinese_remainder_theorem);
 
         // LATTICES
         // run_function!(b_mathematics::e_lattices_vectors);

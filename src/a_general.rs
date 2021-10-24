@@ -1,16 +1,14 @@
-
 pub mod my_pretty_der;
 
-use std::io::Cursor;
-use rusticata_macros::debug;
+use crate::big;
+use byteorder::{BigEndian, ReadBytesExt};
 use core::mem::swap;
 use num_bigint::BigInt;
-use std::io::BufReader;
-use byteorder::{BigEndian, ReadBytesExt};
 use num_bigint::Sign;
+use rusticata_macros::debug;
 use serde::{Deserialize, Serialize};
-use crate::big;
-
+use std::io::BufReader;
+use std::io::Cursor;
 
 pub fn a_ascii() {
     let s: &[u8] = &[
@@ -38,8 +36,6 @@ pub fn d_bytes_big_integers() {
     let my_bytes = x.to_bytes_be().1;
     println!("{}", String::from_utf8_lossy(&my_bytes));
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 struct EncodedAndType {
@@ -242,9 +238,9 @@ pub fn k_math_gcd_ext() {
 }
 
 pub struct GcdExtended {
-    gcd: i64,
-    p: i64,
-    s: i64,
+    pub gcd: i64,
+    pub p: i64,
+    pub s: i64,
 }
 
 pub fn my_gcd_ext(x: i64, n: i64) -> GcdExtended {
@@ -257,10 +253,10 @@ pub fn my_gcd_ext(x: i64, n: i64) -> GcdExtended {
         let q = a / b;
         let r = a % b;
 
-        let pi = if step >= 2 {
-            (p2 - p1 * q2 as i64).rem_euclid(n)
-        } else {
-            step
+        let pi = match step {
+            0 => 0,
+            1 => 1,
+            _ => (p2 - p1 * q2 as i64).rem_euclid(n),
         };
 
         if step >= 2 {
@@ -304,8 +300,6 @@ pub fn l_math_modular_arithmetic_1() {
     println!("{}", x.min(y));
 }
 
-
-
 pub fn m_math_modular_arithmetic_2() {
     let p = big!(65537);
     let p_minus_1 = &p - 1;
@@ -324,7 +318,7 @@ pub fn n_math_modular_inverting() {
 }
 
 pub fn o_data_formats_pem_privacy_enchanced_mail() {
-    let pem_bytes = include_bytes!("assets/privacy_enhanced_mail.pem");
+    let pem_bytes = include_bytes!("files/privacy_enhanced_mail.pem");
 
     let der_bytes = my_pem_decode(pem_bytes);
     //println!("{}", String::from_utf8_lossy(&der_bytes));
@@ -370,11 +364,8 @@ pub fn my_pem_decode(pem_string: &[u8]) -> Vec<u8> {
     base64decoded
 }
 
-
-
 pub fn p_data_formats_certainly_not() {
-    
-    let der_bytes = include_bytes!("assets/2048b-rsa-example-cert.der");
+    let der_bytes = include_bytes!("files/2048b-rsa-example-cert.der");
     let der_bytes = &der_bytes[..];
     let (rem, der_obj) = der_parser::parse_der(&der_bytes).expect("could not parse DER data");
     println!("{:?}", my_pretty_der::as_pretty(&der_obj, 0, 2));
@@ -385,36 +376,32 @@ pub fn p_data_formats_certainly_not() {
     let der_elem = der_obj.as_sequence().unwrap();
     let der_elem = &der_elem[0].as_sequence().unwrap();
     let der_elem = &der_elem.last().unwrap().as_sequence().unwrap();
-    
     let der_elem = &der_elem.last().unwrap();
-    
 
     //println!("{:?}", my_pretty_der::as_pretty(&der_elem, 0, 2));
-    
     let der_elem = der_elem.as_bitstring().unwrap();
     let end = der_elem.data.len();
 
     // nie wiem dlaczego od 8 bajtu i obcinamy 5 ostatnich...
-    let modulus_bytes = &der_elem.data[8..end-5];
+    let modulus_bytes = &der_elem.data[8..end - 5];
     println!("     modulus: {:?}", debug::HexSlice(modulus_bytes));
-    println!("flag modulus: {:?}", BigInt::from_bytes_be(Sign::Plus, modulus_bytes));
+    println!(
+        "flag modulus: {:?}",
+        BigInt::from_bytes_be(Sign::Plus, modulus_bytes)
+    );
 
     // Nie udalo sie przeczytac certu poprzez x509_signature
     // let cert = x509_signature::parse_certificate(&der_bytes).unwrap();
     // println!("{:?}", cert);
 }
 
-
-
-
 pub fn r_ssh_keys() {
     use std::io::BufRead;
     use std::io::Read;
 
-    let ssh_rsa = include_str!("assets/bruce_rsa.pub");
+    let ssh_rsa = include_str!("files/bruce_rsa.pub");
     let ssh_rsa = ssh_rsa.split(" ").nth(1).unwrap();
     let base64decoded = base64::decode(ssh_rsa).unwrap();
-
 
     let mut rdr = Cursor::new(base64decoded);
     let _prefix = rdr.read_u32::<BigEndian>().unwrap();
@@ -433,11 +420,12 @@ pub fn r_ssh_keys() {
         v
     };
 
-    println!("    exponent: {:?}", BigInt::from_bytes_be(Sign::Plus, &exponent));
-    println!("flag modulus: {:?}", BigInt::from_bytes_be(Sign::Plus, &modulus));
-    
+    println!(
+        "    exponent: {:?}",
+        BigInt::from_bytes_be(Sign::Plus, &exponent)
+    );
+    println!(
+        "flag modulus: {:?}",
+        BigInt::from_bytes_be(Sign::Plus, &modulus)
+    );
 }
-
-
-
-
