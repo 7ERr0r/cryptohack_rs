@@ -1,7 +1,14 @@
 use crate::big;
+use core::mem::swap;
+use geometric_algebra::ppga3d::MultiVector;
+use geometric_algebra::simd::Simd32x4;
+use ndarray::arr1;
 use num_bigint::BigInt;
+use ultraviolet::DVec2;
 
-mod tonelli_shanks;
+pub mod chinese_theorem;
+pub mod gaussian_reduction;
+pub mod tonelli_shanks;
 
 pub fn a_modular_math_quadratic_residues() {
     let p = 29;
@@ -61,61 +68,26 @@ pub fn my_legendre_symbol(a: &BigInt, p: &BigInt) -> BigInt {
     legendre
 }
 
-pub fn c_modular_math_modular_square_root() {    
+pub fn c_modular_math_modular_square_root() {
     // let a = &big!(5);
     // let p = &big!(41);
 
     let a = &big!(8479994658316772151941616510097127087554541274812435112009425778595495359700244470400642403747058566807127814165396640215844192327900454116257979487432016769329970767046735091249898678088061634796559556704959846424131820416048436501387617211770124292793308079214153179977624440438616958575058361193975686620046439877308339989295604537867493683872778843921771307305602776398786978353866231661453376056771972069776398999013769588936194859344941268223184197231368887060609212875507518936172060702209557124430477137421847130682601666968691651447236917018634902407704797328509461854842432015009878011354022108661461024768);
     let p = &big!(30531851861994333252675935111487950694414332763909083514133769861350960895076504687261369815735742549428789138300843082086550059082835141454526618160634109969195486322015775943030060449557090064811940139431735209185996454739163555910726493597222646855506445602953689527405362207926990442391705014604777038685880527537489845359101552442292804398472642356609304810680731556542002301547846635101455995732584071355903010856718680732337369128498655255277003643669031694516851390505923416710601212618443109844041514942401969629158975457079026906304328749039997262960301209158175920051890620947063936347307238412281568760161);
-    
 
-    
     let root = tonelli_shanks::my_tonelli_shanks(p, a);
 
     println!("root flag: {}", root);
 }
 
 pub fn d_modular_math_chinese_remainder_theorem() {
-    let residues = vec![big!(2), big!(3), big!(5)];
-    let modulii = vec![big!(5), big!(11), big!(17)];
+    let residues = vec![2, 3, 5];
+    let modulii = vec![5, 11, 17];
 
-    let result = my_chinese_remainder(&residues, &modulii);
+    let result = chinese_theorem::chinese_remainder(&residues, &modulii);
 
     println!("result: {:?}", result);
 }
-
-
-fn my_chinese_remainder(residues: &[BigInt], modulii: &[BigInt]) -> Option<BigInt> {
-    use num_traits::{Zero, One};
-    use num_traits::ToPrimitive;
-    let product = {
-        
-        let mut prod = BigInt::one();
-        for modulus in modulii {
-            prod *= modulus;
-        }
-        prod
-    };
- 
-    let mut sum = BigInt::zero();
- 
-    for (residue, modulus) in residues.iter().zip(modulii) {
-        let p = &product / modulus;
-        sum += residue * my_mod_inv(p.to_i64().unwrap(), modulus.to_i64().unwrap())? * p
-    }
- 
-    Some(sum % product)
-}
-fn my_mod_inv(x: i64, n: i64) -> Option<i64> {
-    let gcde = crate::a_general::my_gcd_ext(x, n);
-    let x = gcde.p;
-    if gcde.gcd == 1 {
-        Some((x % n + n) % n)
-    } else {
-        None
-    }
-}
-
 
 pub fn e_lattices_vectors() {
     use ultraviolet::vec::DVec3;
@@ -168,4 +140,73 @@ pub fn g_lattices_gram_schmidt() {
 
     println!("{:?}", uecs[3].y);
     println!("{:.5?}", uecs[3].y);
+}
+
+pub fn h_whats_a_lattice() {
+    {
+        use ultraviolet::vec::DVec3;
+        let v1 = DVec3::new(6.0, 2.0, -3.0);
+        let v2 = DVec3::new(5.0, 1.0, 4.0);
+        let v3 = DVec3::new(2.0, 7.0, 1.0);
+
+        let volume: f64 = v1.cross(v2).dot(v3);
+
+        println!("volume: {:?}", volume);
+    }
+
+    if false {
+        use geometric_algebra::*;
+        let zero = geometric_algebra::ppga3d::MultiVector::zero();
+
+        let v1 = geometric_algebra::ppga3d::MultiVector {
+            g0: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+            g1: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+            g2: Simd32x4::from([1.0, 6.0, 2.0, -3.0]),
+            g3: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+        };
+        let v2 = geometric_algebra::ppga3d::MultiVector {
+            g0: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+            g1: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+            g2: Simd32x4::from([1.0, 5.0, 1.0, 4.0]),
+            g3: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+        };
+        let v3 = geometric_algebra::ppga3d::MultiVector {
+            g0: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+            g1: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+            g2: Simd32x4::from([0.0, 2.0, 7.0, 1.0]),
+            g3: Simd32x4::from([0.0, 0.0, 0.0, 0.0]),
+        };
+
+        //let v1: MultiVector = v1 + zero;
+
+        let volume: MultiVector = <_ as GeometricProduct<MultiVector>>::geometric_product(v1, v2);
+        //let volume: MultiVector = volume.outer_product(v3);
+
+        println!("volume: {:?}", v1);
+    }
+}
+
+pub fn i_gaussian_reduction() {
+    // doesn't work
+    if false {
+        let v1 = DVec2::new(846835985.0, 9834798552.0);
+        let v2 = DVec2::new(87502093.0, 123094980.0);
+
+        let (v1, v2) = gaussian_reduction::my_gaussian_reduction(v1, v2);
+
+        println!("inner flag: {:?} {:?}", v1, v2);
+        println!("inner flag: {:?}", v1.geom(v2));
+    }
+
+    // ndarray
+    {
+        let v1 = arr1(&[846835985, 9834798552]);
+        let v2 = arr1(&[87502093, 123094980]);
+
+        let (v1, v2) = gaussian_reduction::my_gaussian_reduction_nd(v1, v2);
+
+        println!("v1: {:?}", v1);
+        println!("v2: {:?}", v2);
+        println!("inner flag: {:?}", v1.dot(&v2));
+    }
 }

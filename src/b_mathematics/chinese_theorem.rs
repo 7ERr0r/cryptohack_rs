@@ -1,4 +1,4 @@
-fn egcd(a: i64, b: i64) -> (i64, i64, i64) {
+pub fn egcd(a: i64, b: i64) -> (i64, i64, i64) {
     if a == 0 {
         (b, 0, 1)
     } else {
@@ -7,7 +7,7 @@ fn egcd(a: i64, b: i64) -> (i64, i64, i64) {
     }
 }
  
-fn mod_inv(x: i64, n: i64) -> Option<i64> {
+pub fn mod_inv(x: i64, n: i64) -> Option<i64> {
     let (g, x, _) = egcd(x, n);
     if g == 1 {
         Some((x % n + n) % n)
@@ -16,7 +16,7 @@ fn mod_inv(x: i64, n: i64) -> Option<i64> {
     }
 }
  
-fn chinese_remainder(residues: &[i64], modulii: &[i64]) -> Option<i64> {
+pub fn chinese_remainder(residues: &[i64], modulii: &[i64]) -> Option<i64> {
     let prod = modulii.iter().product::<i64>();
  
     let mut sum = 0;

@@ -50,9 +50,12 @@ fn main() {
         run_function!(b_mathematics::d_modular_math_chinese_remainder_theorem);
 
         // LATTICES
-        // run_function!(b_mathematics::e_lattices_vectors);
-        // run_function!(b_mathematics::f_lattices_size_basis);
-        // run_function!(b_mathematics::g_lattices_gram_schmidt);
+        run_function!(b_mathematics::e_lattices_vectors);
+        run_function!(b_mathematics::f_lattices_size_basis);
+        run_function!(b_mathematics::g_lattices_gram_schmidt);
+        run_function!(b_mathematics::h_whats_a_lattice);
+        run_function!(b_mathematics::i_gaussian_reduction);
+        
     }
 }
 
