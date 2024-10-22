@@ -1,4 +1,4 @@
-# cryptohack_mw
+# cryptohack_rs
 
 uruchamianie:
 `cargo run`
